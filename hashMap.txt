@@ -1,0 +1,66 @@
+HashMap
+不指定容量第一次put会做些什么步骤
+  Map<String,String> map = new HashMap();
+        String str = map.put("test","1");
+        System.out.println(str);
+
+
+
+    首先会进入 HashMap()无参构造
+    this.loadFactor = DEFAULT_LOAD_FACTOR;// DEFAULT_LOAD_FACTOR为0.75
+
+    接着调用put方法  ket为test value为1
+    public V put(K key, V value) {
+            return putVal(hash(key), key, value, false, true);
+        }
+        接着调用hash方法进行计算
+         static final int hash(Object key) {
+                int h;
+                return (key == null) ? 0 : (h = key.hashCode()) ^ (h >>> 16);
+            }
+
+          接着调用hashCode进行运算
+          public int hashCode() {
+                  int h = hash; //第一次为0
+                  if (h == 0 && value.length > 0) {
+                      char val[] = value; //{t,e,s,t}
+
+                      for (int i = 0; i < value.length; i++) {//运算后
+                          h = 31 * h + val[i];
+                      }
+                      hash = h;//与计算后为3556498
+                  }
+                  return h;
+              }
+
+          //接着进入putVal
+           if ((tab = table) == null || (n = tab.length) == 0)//判断是否为空
+           n = (tab = resize()).length;//发现为空进行扩容操作
+
+
+           //resize()进入resize方法进行扩容
+           newCap = DEFAULT_INITIAL_CAPACITY; //16
+           newThr = (int)(DEFAULT_LOAD_FACTOR * DEFAULT_INITIAL_CAPACITY);//12
+           threshold = newThr;//12
+           //接着初始化链表数组
+            @SuppressWarnings({"rawtypes","unchecked"})
+             Node<K,V>[] newTab = (Node<K,V>[])new Node[newCap];
+             table = newTab;
+
+             然后返回  return newTab;
+
+
+             //回到putAll方法
+             if ((p = tab[i = (n - 1) & hash]) == null)//执行这个步骤 // 数组里没有结点
+              tab[i] = newNode(hash, key, value, null);//这里是把下标为i的数组链表
+
+            //  newNode是创建一个新的链表
+              Node<K,V> newNode(int hash, K key, V value, Node<K,V> next) {
+                      return new Node<>(hash, key, value, next);
+                  }
+
+            接着回到putAll
+            ++modCount;
+
+            执行 afterNodeInsertion(evict);方法
+                return null;//前一个map没有所以执行这个return null
